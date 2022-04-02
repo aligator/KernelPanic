@@ -33,7 +33,8 @@ func New() game {
 			WorkingDirectory: "/",
 		},
 		commands: map[string]command.Command{
-			"ls": command.Ls{},
+			"ls":    command.Ls{},
+			"mkdir": command.Mkdir{},
 		},
 	}
 
