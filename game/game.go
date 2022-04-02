@@ -36,6 +36,7 @@ func New() game {
 			"ls":    command.Ls{},
 			"mkdir": command.Mkdir{},
 			"cd":    command.Cd{},
+			"rm":    command.Rm{},
 		},
 	}
 
