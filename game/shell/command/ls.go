@@ -23,13 +23,13 @@ func (l Ls) Exec(ctx shell.Context, input string) (shell.Context, string, error)
 		return ctx, "", err
 	}
 
-	flagSet.Args()
+	var args = filterArgs(flagSet.Args())
 
 	path := ctx.WorkingDirectory
-	if len(flagSet.Args()) > 0 {
-		path = flagSet.Arg(0)
+	if len(args) > 0 {
+		path = args[0]
 	}
-	if len(flagSet.Args()) > 1 {
+	if len(args) > 1 {
 		return ctx, "", errors.New("too many arguments, 'ls' only supports up to 1 arguments")
 	}
 

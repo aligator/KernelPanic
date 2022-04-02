@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type Mkdir struct{}
+type Cd struct{}
 
-func (m Mkdir) Exec(ctx shell.Context, input string) (shell.Context, string, error) {
+func (c Cd) Exec(ctx shell.Context, input string) (shell.Context, string, error) {
 	var flagSet = pflag.NewFlagSet(os.Args[0], pflag.ContinueOnError)
 	err := flagSet.Parse(strings.Split(input, " "))
 	if err != nil {
@@ -22,20 +22,29 @@ func (m Mkdir) Exec(ctx shell.Context, input string) (shell.Context, string, err
 	var args = filterArgs(flagSet.Args())
 
 	if len(args) > 1 || len(args) < 1 {
-		return ctx, "", errors.New("too many arguments, 'mkdir' only supports 1 argument")
+		return ctx, "", errors.New("too many arguments, 'cd' only supports 1 argument")
 	}
 
 	var path string
 	if strings.HasPrefix(args[0], "/") {
-		path = flagSet.Arg(0)
+		path = args[0]
 	} else {
-		path = filepath.Join(ctx.WorkingDirectory, args[0])
+		path, err = filepath.Abs(filepath.Join(ctx.WorkingDirectory, args[0]))
+		if err != nil {
+			return ctx, "", err
+		}
 	}
 
-	err = ctx.Filesystem.Mkdir(path, os.ModeDir)
+	stat, err := ctx.Filesystem.Stat(path)
 	if err != nil {
 		return ctx, "", err
 	}
+
+	if !stat.IsDir() {
+		return ctx, "", errors.New("you can only cd into a directory, not into a file")
+	}
+
+	ctx.WorkingDirectory = path
 
 	return ctx, "", nil
 }
