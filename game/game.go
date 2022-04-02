@@ -2,8 +2,11 @@ package game
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aligator/HideAndShell/game/shell"
+	"github.com/aligator/HideAndShell/game/shell/command"
+	"github.com/aligator/HideAndShell/game/shell/filesystem"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -11,6 +14,10 @@ import (
 type game struct {
 	history  shell.HistoryModel
 	cmdInput textinput.Model
+
+	ctx shell.Context
+
+	commands map[string]command.Command
 }
 
 func New() game {
@@ -20,6 +27,14 @@ func New() game {
 	m := game{
 		cmdInput: cmdInput,
 		history:  shell.NewHistory(1),
+
+		ctx: shell.Context{
+			Filesystem:       filesystem.New(),
+			WorkingDirectory: "/",
+		},
+		commands: map[string]command.Command{
+			"ls": command.Ls{},
+		},
 	}
 
 	return m
@@ -42,8 +57,40 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.Type {
 		case tea.KeyEnter:
-			m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: m.cmdInput.Value()})
-			m.cmdInput.SetValue("")
+			// Evaluate input
+			cmd = nil
+			func() {
+				input := m.cmdInput.Value()
+				m.cmdInput.SetValue("")
+
+				splitted := strings.SplitN(input, " ", 2)
+				if len(splitted) < 1 {
+					return
+				} else if len(splitted) < 2 {
+					splitted = append(splitted, "")
+				}
+
+				if _, ok := m.commands[splitted[0]]; !ok {
+					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "unknown command"})
+					return
+				}
+
+				shellCmd := m.commands[splitted[0]]
+
+				var result string
+				var err error
+				m.ctx, result, err = shellCmd.Exec(m.ctx, splitted[1])
+				if err != nil {
+					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "> " + input + "\n" + err.Error()})
+					return
+				}
+
+				m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "> " + input + "\n" + result})
+			}()
+
+			if cmd != nil {
+				cmds = append(cmds, cmd)
+			}
 		}
 	}
 
