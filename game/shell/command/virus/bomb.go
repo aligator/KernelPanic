@@ -39,7 +39,7 @@ func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 
 	switch msg.(type) {
 	case restartVirusMsg:
-		m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(50) + 30)))
+		m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(30) + 20)))
 	case killedMsg:
 		m.killed = true
 		m.endTime = time.Now().Add(time.Second * time.Duration(rand.Intn(20)+60))

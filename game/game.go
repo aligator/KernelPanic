@@ -100,6 +100,10 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.Type {
 		case tea.KeyEnter:
+			if m.cmdInput.Value() == "exit" {
+				return m, tea.Quit
+			}
+
 			// Evaluate input
 			cmd = nil
 			func() {

@@ -39,10 +39,9 @@ func NewBlueScreenModel(serverHighscore *server.Highscore) BluescreenModel {
 
 	m := BluescreenModel{
 		serverHighscore: serverHighscore,
-		reason:          "some reason",
-		score:           0,
-		bsodStyle:       lipgloss.NewStyle().Background(lipgloss.Color("#0000ff")).Foreground(lipgloss.Color("#ffffff")).Bold(true),
-		nameInput:       nameInput,
+		//	reason:          "some reason",
+		bsodStyle: lipgloss.NewStyle().Background(lipgloss.Color("#0000ff")).Foreground(lipgloss.Color("#ffffff")).Bold(true),
+		nameInput: nameInput,
 	}
 
 	return m
@@ -107,7 +106,7 @@ func (m BluescreenModel) Update(msg tea.Msg) (BluescreenModel, tea.Cmd) {
 
 		switch msg.Type {
 		case tea.KeyEnter:
-			if m.highscoreSnapshot == nil {
+			if m.highscoreSnapshot == nil && m.reason != "" {
 				m.serverHighscore.Insert(server.Score{
 					Name:  m.nameInput.Value(),
 					Value: m.score,
@@ -129,11 +128,13 @@ func (m BluescreenModel) Update(msg tea.Msg) (BluescreenModel, tea.Cmd) {
 		}
 	}
 
-	m.nameInput, cmd = m.nameInput.Update(msg)
-	cmds = append(cmds, cmd)
+	if m.reason != "" {
+		m.nameInput, cmd = m.nameInput.Update(msg)
+		cmds = append(cmds, cmd)
 
-	m.highscoreViewport, cmd = m.highscoreViewport.Update(msg)
-	cmds = append(cmds, cmd)
+		m.highscoreViewport, cmd = m.highscoreViewport.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }
