@@ -5,22 +5,24 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aligator/HideAndShell/game/bluescreen"
 	"github.com/aligator/HideAndShell/game/score"
 	"github.com/aligator/HideAndShell/game/shell"
 	"github.com/aligator/HideAndShell/game/shell/command"
 	"github.com/aligator/HideAndShell/game/shell/command/virus"
 	"github.com/aligator/HideAndShell/game/shell/filesystem"
+	"github.com/aligator/HideAndShell/server"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type game struct {
+	highscore *server.Highscore
+
 	history  shell.HistoryModel
 	cmdInput textinput.Model
 	score    score.Model
-	bsod     bluescreen.Model
+	bsod     score.BluescreenModel
 
 	ctx shell.Context
 
@@ -29,17 +31,19 @@ type game struct {
 	headerStyle, virusStyle, historyStyle, inputStyle, promptStyle lipgloss.Style
 }
 
-func New() game {
+func New(highscore *server.Highscore) game {
 	cmdInput := textinput.New()
 	cmdInput.Focus()
 
 	fs := filesystem.New()
 
 	m := game{
+		highscore: highscore,
+
 		cmdInput: cmdInput,
 		history:  shell.NewHistory(),
 		score:    score.NewScoreModel(),
-		bsod:     bluescreen.NewBlueScreeneModel(),
+		bsod:     score.NewBlueScreenModel(highscore),
 
 		ctx: shell.Context{
 			Filesystem:       fs,
@@ -120,8 +124,13 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				var err error
 				m.ctx, result, cmd, err = shellCmd.Exec(m.ctx, splitted[1])
 				if err != nil {
-					if errors.Is(err, command.ErrSystemPIDKilled) || errors.Is(err, command.ErrSystemFileRemoved) {
-						cmds = append(cmds, bluescreen.BSODCmd)
+					if errors.Is(err, command.ErrSystemPIDKilled) {
+						cmds = append(cmds, score.BSODCmd(err.Error()))
+						return
+					}
+
+					if errors.Is(err, command.ErrSystemFileRemoved) {
+						cmds = append(cmds, score.BSODCmd(err.Error()))
 						return
 					}
 

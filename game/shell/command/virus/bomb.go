@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aligator/HideAndShell/game/bluescreen"
+	"github.com/aligator/HideAndShell/game/score"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -53,7 +53,7 @@ func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 				m.killed = false
 				cmds = append(cmds, restartVirusCmd, alertCmd)
 			} else {
-				cmds = append(cmds, bluescreen.BSODCmd)
+				cmds = append(cmds, score.BSODCmd("'bomb!.worm' destroyed your system"))
 			}
 		}
 		cmds = append(cmds, tickBombCmd)

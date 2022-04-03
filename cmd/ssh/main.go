@@ -14,10 +14,12 @@ import (
 	"time"
 
 	"github.com/aligator/HideAndShell/game"
+	"github.com/aligator/HideAndShell/server"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/wish"
 	bubbleMiddleware "github.com/charmbracelet/wish/bubbletea"
 	loggingMiddleware "github.com/charmbracelet/wish/logging"
+	recoverMiddleware "github.com/charmbracelet/wish/recover"
 	"github.com/gliderlabs/ssh"
 )
 
@@ -36,7 +38,7 @@ func AllKeys(ctx ssh.Context, key ssh.PublicKey) bool {
 // handles the incoming ssh.Session. Here we just grab the terminal info and
 // pass it to the new model. You can also return tea.ProgramOptions (such as
 // tea.WithAltScreen) on a session by session basis
-func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+func teaHandler(highscore *server.Highscore) func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	return func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 		_, _, active := s.Pty()
 		if !active {
@@ -44,7 +46,7 @@ func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 			return nil, nil
 		}
 
-		g := game.New()
+		g := game.New(highscore)
 
 		return g, []tea.ProgramOption{tea.WithAltScreen(), tea.WithMouseCellMotion()}
 	}
@@ -53,14 +55,18 @@ func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 func main() {
 	rand.Seed(time.Now().UnixMilli())
 
+	highscore := &server.Highscore{}
+
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
 		wish.WithHostKeyPath(".ssh/term_info_ed25519"),
 		wish.WithPublicKeyAuth(AllKeys),
 		wish.WithPasswordAuth(AllPasswords),
 		wish.WithMiddleware(
-			bubbleMiddleware.Middleware(teaHandler()),
-			loggingMiddleware.Middleware(),
+			recoverMiddleware.Middleware(
+				bubbleMiddleware.Middleware(teaHandler(highscore)),
+				loggingMiddleware.Middleware(),
+			),
 		),
 	)
 	if err != nil {

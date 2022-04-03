@@ -6,13 +6,16 @@ import (
 	"time"
 
 	"github.com/aligator/HideAndShell/game"
+	"github.com/aligator/HideAndShell/server"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixMilli())
 
-	g := game.New()
+	highscore := &server.Highscore{}
+
+	g := game.New(highscore)
 	p := tea.NewProgram(g, tea.WithMouseAllMotion())
 
 	if err := p.Start(); err != nil {
