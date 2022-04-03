@@ -1,4 +1,4 @@
-# Goal:                                                                                                                 │
+# Goal:
 You are the administrator of this server.                                                                             
 Some hackers plant viruses.                                                                                           
 You have to stop them to avoid a kernel panic!
