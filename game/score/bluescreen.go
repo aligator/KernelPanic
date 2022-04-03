@@ -38,7 +38,8 @@ func NewBlueScreenModel(serverHighscore *server.Highscore) BluescreenModel {
 	nameInput.Prompt = "Enter your name:"
 
 	m := BluescreenModel{
-		serverHighscore: serverHighscore, reason: "some reason",
+		serverHighscore: serverHighscore,
+		//reason: "some reason",
 		bsodStyle: lipgloss.NewStyle().Background(lipgloss.Color("#0000ff")).Foreground(lipgloss.Color("#ffffff")).Bold(true),
 		nameInput: nameInput,
 	}
