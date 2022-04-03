@@ -60,6 +60,7 @@ func New(highscore *server.Highscore) game {
 			"rm":    command.Rm{},
 			"ps":    command.Ps{},
 			"kill":  command.Kill{},
+			"help":  command.Help{},
 		},
 	}
 
@@ -94,7 +95,7 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.history.Left = m.historyStyle.GetBorderLeftSize() + 1
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "ctrl+c":
+		case "ctrl+c":
 			return m, tea.Quit
 		}
 

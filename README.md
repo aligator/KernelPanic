@@ -1,27 +1,21 @@
-# Hide and Shell
+# Goal:                                                                                                                 │
+You are the administrator of this server.                                                                             
+Some hackers plant viruses.                                                                                           
+You have to stop them to avoid a kernel panic!
 
-## Concept
-* 1 admin
-* several hacker (up to 5 per game?)
-
-### Basic commands
-* cd
-* ls
-* cat
-
-### Admin commands
-* scan
-  * scanning a file reveals the name of the creator
-  * scanning a file may trigger a bomb if it is an installed virus
-* rm
-
-### Hacker commands
-* mkdir
-* touch
-* install {xyz} - installs some kind of virus (which has some effects)
-
-### Events
-* when admin rms hacker-user-file he levels up and the hacker loses
-* when the admin rms a system file (randomly placed from a list of random names) the system crashes and he looses
-* when the time is up, the admin loses
+# Scrolling:                                                                                                            
+In some terminals the scroll wheel just works.                                                                        
+In others, just use the "PageUp" and "PageDown" or "ctrl+u" and "ctrl+d"                                              
+                                                                                                                      
+# Quit game:                                                                                                            
+"ctrl+c" or type "exit"                                                                                               
+                                                                                                                      
+# Available commands:                                                                                                   
+• ls {Path}    (list directory)                                                                                       
+• mkdir {Path} (create folder)                                                                                        
+• cd {Path}    (change directory)                                                                                     
+• rm {Path}    (delete file)                                                                                          
+• ps           (list processes)                                                                                       
+• kill {PID}   (kill process)                                                                                         
+                                                                                                                      │
 

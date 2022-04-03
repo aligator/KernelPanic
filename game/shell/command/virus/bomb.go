@@ -25,14 +25,6 @@ func (m BombModel) Init() tea.Cmd {
 }
 
 type tickBombMsg time.Time
-type tickDisableAlertMsg struct{}
-type enableAlertMsg struct{}
-
-var alertCmd = tea.Batch(tea.Tick(time.Second*5, func(t time.Time) tea.Msg {
-	return tickDisableAlertMsg{}
-}), func() tea.Msg {
-	return enableAlertMsg{}
-})
 
 func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 	var cmds []tea.Cmd
@@ -71,9 +63,9 @@ func (m BombModel) View() string {
 	msg := ""
 
 	if m.killed {
-		msg += "Successfully stopped virus! Find and delete the 'bomb!.worm' or it may be restarted!!!"
+		msg += "Successfully stopped virus! Find and delete executable file or it may be restarted!!! (hint: 'ls', 'cd', 'rm')"
 	} else {
-		msg += "Virus of type 'bomb!.worm' found! Kill the process quickly!!! (hint: 'ps' & 'kill')"
+		msg += "Virus found! Kill the process quickly!!! (hint: 'ps' & 'kill')"
 	}
 
 	if !m.endTime.IsZero() {

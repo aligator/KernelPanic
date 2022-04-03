@@ -18,7 +18,7 @@ type HistoryModel struct {
 
 func NewHistory() HistoryModel {
 	m := HistoryModel{
-		lines: strings.Split(``, "\n"),
+		lines: strings.Split(`*** type "help" for instructions ***`, "\n"),
 	}
 
 	return m
@@ -47,11 +47,6 @@ func (m HistoryModel) Update(msg tea.Msg) (HistoryModel, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "q", "ctrl+c":
-			return m, tea.Quit
-		}
 	case tea.WindowSizeMsg:
 		if !m.ready {
 			m.historyViewport = viewport.New(msg.Width-m.Left-m.Right, msg.Height-m.Top-m.Bottom)

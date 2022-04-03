@@ -99,11 +99,6 @@ func (m BluescreenModel) Update(msg tea.Msg) (BluescreenModel, tea.Cmd) {
 	case scoreMsg:
 		m.score += int(msg)
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "q", "ctrl+c":
-			return m, tea.Quit
-		}
-
 		switch msg.Type {
 		case tea.KeyEnter:
 			if m.highscoreSnapshot == nil && m.reason != "" {

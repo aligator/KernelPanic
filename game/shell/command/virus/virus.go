@@ -11,7 +11,16 @@ import (
 	"github.com/spf13/afero"
 )
 
-var evilFilenames = []string{"evil.exe", "kill-all.exe", "boom.exe", "1337.exe", "LOVE-LETTER-FOR-YOU.TXT.vbs"}
+var evilFilenames = []string{"evil.exe", "kill-all.exe", "boom.exe", "1337.exe", "LOVE-LETTER-FOR-YOU.TXT.vbs", "NUKE.exe"}
+
+type tickDisableAlertMsg struct{}
+type enableAlertMsg struct{}
+
+var alertCmd = tea.Batch(tea.Tick(time.Second*5, func(t time.Time) tea.Msg {
+	return tickDisableAlertMsg{}
+}), func() tea.Msg {
+	return enableAlertMsg{}
+})
 
 var Viruses = []Virus{
 	BombModel{},
