@@ -45,5 +45,5 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return fmt.Sprintf(scoreStyle.Render("Value: %v"), m.score)
+	return fmt.Sprintf(scoreStyle.Render("Score: %v"), m.score)
 }

@@ -14,6 +14,7 @@ type BombModel struct {
 	killed     bool
 	endTime    time.Time
 	styleAlert lipgloss.Style
+	stopped    bool
 }
 
 var tickBombCmd = tea.Tick(time.Second, func(t time.Time) tea.Msg {
@@ -29,6 +30,10 @@ type tickBombMsg time.Time
 func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 	var cmds []tea.Cmd
 
+	if m.stopped {
+		return m, nil
+	}
+
 	switch msg.(type) {
 	case restartVirusMsg:
 		m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(30) + 20)))
@@ -43,9 +48,10 @@ func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 		if time.Now().UnixMilli() >= m.endTime.UnixMilli() {
 			if m.killed {
 				m.killed = false
-				cmds = append(cmds, restartVirusCmd, alertCmd)
+				return m, tea.Batch(restartVirusCmd, alertCmd)
 			} else {
-				cmds = append(cmds, score.BSODCmd("'bomb!.worm' destroyed your system"))
+				m.stopped = true
+				return m, score.BSODCmd("'bomb!.worm' destroyed your system")
 			}
 		}
 		cmds = append(cmds, tickBombCmd)

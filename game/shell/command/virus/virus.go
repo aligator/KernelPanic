@@ -8,7 +8,6 @@ import (
 	"github.com/aligator/HideAndShell/game/score"
 	"github.com/aligator/HideAndShell/game/shell/filesystem"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/spf13/afero"
 )
 
 var evilFilenames = []string{"evil.exe", "kill-all.exe", "boom.exe", "1337.exe", "LOVE-LETTER-FOR-YOU.TXT.vbs", "NUKE.exe"}
@@ -88,15 +87,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			randomFolder := folderPaths[rand.Intn(len(folderPaths))]
 
 			evilFilename := evilFilenames[rand.Intn(len(evilFilenames))]
-			for {
-				if exists, err := afero.Exists(m.Filesystem, filepath.Join(randomFolder, evilFilename)); err != nil {
-					panic(err)
-				} else if !exists {
-					break
-				}
-
-				evilFilename = evilFilenames[rand.Intn(len(evilFilenames))]
-			}
 
 			file, err := m.Filesystem.Create(filepath.Join(randomFolder, evilFilename))
 			if err != nil {
@@ -111,7 +101,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.CurrentName = evilFilename
 			m.PID = rand.Intn(999) + 1000
 
-			cmds = append(cmds, m.currentlyActive.Init())
+			return m, m.currentlyActive.Init()
 		}
 
 		cmds = append(cmds, tickCmd)
@@ -121,7 +111,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		m.CurrentName = ""
 		m.CurrentLocation = ""
 
-		cmds = append(cmds, score.AddScoreCmd(1))
+		return m, score.AddScoreCmd(1)
 	case restartVirusMsg:
 		if m.currentlyActive != nil {
 			m.PID = rand.Intn(999) + 1000
