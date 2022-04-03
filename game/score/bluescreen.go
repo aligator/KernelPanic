@@ -73,7 +73,7 @@ func (m BluescreenModel) Update(msg tea.Msg) (BluescreenModel, tea.Cmd) {
 		m.bsodStyle.Height(msg.Height)
 
 		if !m.ready {
-			m.highscoreViewport = viewport.New(0, msg.Height-9)
+			m.highscoreViewport = viewport.New(0, msg.Height-9-13)
 			m.highscoreViewport.SetContent("")
 			m.highscoreViewport.GotoTop()
 			m.highscoreViewport.KeyMap = viewport.DefaultKeyMap()
@@ -92,7 +92,7 @@ func (m BluescreenModel) Update(msg tea.Msg) (BluescreenModel, tea.Cmd) {
 
 			m.ready = true
 		} else {
-			m.highscoreViewport.Height = msg.Height - 9
+			m.highscoreViewport.Height = msg.Height - 9 - 12
 		}
 	case activateMsg:
 		m.reason = msg.reason
@@ -149,7 +149,20 @@ func (m BluescreenModel) View() string {
 		highscore += "Highscore:\n"
 	}
 
-	header := lipgloss.JoinVertical(lipgloss.Center, kernelPanic, reason, score, highscore)
+	header := lipgloss.JoinVertical(lipgloss.Center, kernelPanic, reason, score, `           -------------    
+        /                \ 
+       /  ---        ---  \
+       | |   |      |   | |
+       |  ---        ---  |
+       \        ^         /
+        \      / \       / 
+         \_   /___\    _/  
+          | |========| |   
+          \  |======|  /    
+           \          /     
+             --------       
+
+`, highscore)
 
 	headerWidth := lipgloss.Width(header)
 	header = lipgloss.NewStyle().
