@@ -33,6 +33,4 @@ In others, just use the "PageUp" and "PageDown" or "ctrl+u" and "ctrl+d"
 • cd {Path}    (change directory)                                                                                     
 • rm {Path}    (delete file)                                                                                          
 • ps           (list processes)                                                                                       
-• kill {PID}   (kill process)                                                                                         
-                                                                                                                      │
-
+• kill {PID}   (kill process)
