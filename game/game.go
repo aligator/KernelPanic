@@ -25,12 +25,9 @@ type game struct {
 	ctx shell.Context
 
 	commands map[string]command.Command
-}
 
-var headerStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
-var virusStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
-var historyStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
-var inputStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	headerStyle, virusStyle, historyStyle, inputStyle, promptStyle lipgloss.Style
+}
 
 func New() game {
 	cmdInput := textinput.New()
@@ -62,6 +59,14 @@ func New() game {
 		},
 	}
 
+	m.headerStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	m.virusStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	m.historyStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	m.inputStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	m.promptStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("9"))
+
+	m.cmdInput.PromptStyle = m.promptStyle
+
 	return m
 }
 
@@ -75,14 +80,14 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		headerStyle.Width(msg.Width - headerStyle.GetBorderRightSize() - 1)
-		virusStyle.Width(msg.Width - virusStyle.GetBorderRightSize() - 1)
-		historyStyle.Width(msg.Width - historyStyle.GetBorderRightSize() - 1)
-		inputStyle.Width(msg.Width - inputStyle.GetBorderRightSize() - 1)
-		m.history.Top = historyStyle.GetBorderTopWidth() + lipgloss.Height(headerStyle.Render(m.score.View()))
-		m.history.Right = historyStyle.GetBorderRightSize()
-		m.history.Bottom = historyStyle.GetBorderBottomSize() + 4
-		m.history.Left = historyStyle.GetBorderLeftSize()
+		m.headerStyle.Width(msg.Width - m.headerStyle.GetBorderRightSize() - 2)
+		m.virusStyle.Width(msg.Width - m.virusStyle.GetBorderRightSize() - 2)
+		m.historyStyle.Width(msg.Width - m.historyStyle.GetBorderRightSize() - 2)
+		m.inputStyle.Width(msg.Width - m.inputStyle.GetBorderRightSize() - 2)
+		m.history.Top = m.historyStyle.GetBorderTopWidth() + lipgloss.Height(m.headerStyle.Render(m.score.View())) + 1
+		m.history.Right = m.historyStyle.GetBorderRightSize() + 1
+		m.history.Bottom = m.historyStyle.GetBorderBottomSize() + 4
+		m.history.Left = m.historyStyle.GetBorderLeftSize() + 1
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
@@ -105,7 +110,7 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				if _, ok := m.commands[splitted[0]]; !ok {
-					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "> " + input + "\n" + "unknown command"})
+					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: m.promptStyle.Render(m.ctx.WorkingDirectory+" > ") + input + "\n" + "unknown command"})
 					return
 				}
 
@@ -120,7 +125,7 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return
 					}
 
-					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "> " + input + "\n" + err.Error()})
+					m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: m.promptStyle.Render(m.ctx.WorkingDirectory+" > ") + input + "\n" + err.Error()})
 					return
 				}
 				if cmd != nil {
@@ -128,7 +133,7 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					cmd = nil
 				}
 
-				m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: "> " + input + "\n" + result})
+				m.history, cmd = m.history.Update(shell.AddHistoryMsg{Text: m.promptStyle.Render(m.ctx.WorkingDirectory+" > ") + input + "\n" + result})
 			}()
 
 			if cmd != nil {
@@ -152,6 +157,8 @@ func (m game) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.bsod, cmd = m.bsod.Update(msg)
 	cmds = append(cmds, cmd)
 
+	m.cmdInput.Prompt = m.ctx.WorkingDirectory + " > "
+
 	return m, tea.Batch(cmds...)
 }
 
@@ -160,5 +167,5 @@ func (m game) View() string {
 	if bsod != "" {
 		return bsod
 	}
-	return fmt.Sprintf("%s\n%s\n%s\n%s", headerStyle.Render(m.score.View()), historyStyle.Render(m.history.View()), virusStyle.Render(m.ctx.Virus.View()), m.cmdInput.View())
+	return fmt.Sprintf("%s\n%s\n%s\n%s", m.headerStyle.Render(m.score.View()), m.historyStyle.Render(m.history.View()), m.virusStyle.Render(m.ctx.Virus.View()), m.cmdInput.View())
 }

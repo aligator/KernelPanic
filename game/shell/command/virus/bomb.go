@@ -11,12 +11,10 @@ import (
 )
 
 type BombModel struct {
-	killed  bool
-	alert   bool
-	endTime time.Time
+	killed     bool
+	endTime    time.Time
+	styleAlert lipgloss.Style
 }
-
-var styleAlert = lipgloss.NewStyle().Blink(true)
 
 var tickBombCmd = tea.Tick(time.Second, func(t time.Time) tea.Msg {
 	return tickBombMsg(t)
@@ -30,7 +28,7 @@ type tickBombMsg time.Time
 type tickDisableAlertMsg struct{}
 type enableAlertMsg struct{}
 
-var alertCmd = tea.Batch(tea.Tick(time.Second*10, func(t time.Time) tea.Msg {
+var alertCmd = tea.Batch(tea.Tick(time.Second*5, func(t time.Time) tea.Msg {
 	return tickDisableAlertMsg{}
 }), func() tea.Msg {
 	return enableAlertMsg{}
@@ -41,13 +39,13 @@ func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 
 	switch msg.(type) {
 	case restartVirusMsg:
-		m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(20) + 30)))
+		m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(50) + 30)))
 	case killedMsg:
 		m.killed = true
 		m.endTime = time.Now().Add(time.Second * time.Duration(rand.Intn(20)+60))
 	case tickBombMsg:
 		if m.endTime.IsZero() {
-			m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(20) + 30)))
+			m.endTime = time.Now().Add(time.Second * (time.Duration(rand.Intn(50) + 30)))
 		}
 
 		if time.Now().UnixMilli() >= m.endTime.UnixMilli() {
@@ -61,9 +59,9 @@ func (m BombModel) Update(msg tea.Msg) (Virus, tea.Cmd) {
 		cmds = append(cmds, tickBombCmd)
 
 	case tickDisableAlertMsg:
-		m.alert = false
+		m.styleAlert = lipgloss.NewStyle().Background(lipgloss.Color("0")).Foreground(lipgloss.Color("2"))
 	case enableAlertMsg:
-		m.alert = true
+		m.styleAlert = lipgloss.NewStyle().Background(lipgloss.Color("0")).Foreground(lipgloss.Color("2")).Blink(true)
 	}
 
 	return m, tea.Batch(cmds...)
@@ -78,13 +76,9 @@ func (m BombModel) View() string {
 		msg += "Virus of type 'bomb!.worm' found! Kill the process quickly!!! (hint: 'ps' & 'kill')"
 	}
 
-	if m.alert {
-		msg = styleAlert.Render(msg)
-	}
-
 	if !m.endTime.IsZero() {
 		msg = strconv.FormatFloat(m.endTime.Sub(time.Now()).Seconds(), 'f', 0, 64) + " " + msg
 	}
 
-	return msg
+	return m.styleAlert.Render(msg)
 }

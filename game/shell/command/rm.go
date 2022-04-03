@@ -49,6 +49,12 @@ func (r Rm) Exec(ctx shell.Context, input string) (shell.Context, string, tea.Cm
 		return ctx, "", nil, err
 	}
 	file.Close()
+
+	err = ctx.Filesystem.Remove(path)
+	if err != nil {
+		return ctx, "", nil, err
+	}
+
 	if bytes.HasPrefix(startOfFile, []byte("sys")) {
 		return ctx, "", nil, ErrSystemFileRemoved
 	}
@@ -58,11 +64,6 @@ func (r Rm) Exec(ctx shell.Context, input string) (shell.Context, string, tea.Cm
 			return ctx, "", nil, errors.New("cannot delete file - it is currently used")
 		}
 		return ctx, "", virus.DeletedCmd, nil
-	}
-
-	err = ctx.Filesystem.Remove(path)
-	if err != nil {
-		return ctx, "", nil, err
 	}
 
 	return ctx, "", nil, nil
