@@ -38,8 +38,7 @@ func NewBlueScreenModel(serverHighscore *server.Highscore) BluescreenModel {
 	nameInput.Prompt = "Enter your name:"
 
 	m := BluescreenModel{
-		serverHighscore: serverHighscore,
-		//	reason:          "some reason",
+		serverHighscore: serverHighscore, reason: "some reason",
 		bsodStyle: lipgloss.NewStyle().Background(lipgloss.Color("#0000ff")).Foreground(lipgloss.Color("#ffffff")).Bold(true),
 		nameInput: nameInput,
 	}
@@ -149,18 +148,18 @@ func (m BluescreenModel) View() string {
 		highscore += "Highscore:\n"
 	}
 
-	header := lipgloss.JoinVertical(lipgloss.Center, kernelPanic, reason, score, `           -------------    
-        /                \ 
-       /  ---        ---  \
-       | |   |      |   | |
-       |  ---        ---  |
-       \        ^         /
-        \      / \       / 
-         \_   /___\    _/  
-          | |========| |   
-          \  |======|  /    
-           \          /     
-             --------       
+	header := lipgloss.JoinVertical(lipgloss.Center, kernelPanic, reason, score, `--------------
+/                \
+/  ---        ---  \
+| |   |      |   | |
+|  ---        ---  |
+\        ^         /
+\      / \       /
+\_   /___\    _/
+| |========| |
+\  |======|  /
+\          /
+--------
 
 `, highscore)
 
