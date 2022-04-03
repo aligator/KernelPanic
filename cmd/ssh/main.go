@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
@@ -50,6 +51,8 @@ func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixMilli())
+
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
 		wish.WithHostKeyPath(".ssh/term_info_ed25519"),

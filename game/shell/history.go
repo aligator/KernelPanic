@@ -9,17 +9,16 @@ import (
 )
 
 type HistoryModel struct {
-	lines           []string
-	historyViewport viewport.Model
-	footerHeight    int
+	lines                    []string
+	historyViewport          viewport.Model
+	Top, Right, Bottom, Left int
 
 	ready bool
 }
 
-func NewHistory(footerHeight int) HistoryModel {
+func NewHistory() HistoryModel {
 	m := HistoryModel{
-		lines:        strings.Split(``, "\n"),
-		footerHeight: footerHeight,
+		lines: strings.Split(``, "\n"),
 	}
 
 	return m
@@ -55,7 +54,7 @@ func (m HistoryModel) Update(msg tea.Msg) (HistoryModel, tea.Cmd) {
 		}
 	case tea.WindowSizeMsg:
 		if !m.ready {
-			m.historyViewport = viewport.New(msg.Width, msg.Height-m.footerHeight)
+			m.historyViewport = viewport.New(msg.Width-m.Left-m.Right, msg.Height-m.Top-m.Bottom)
 			m.historyViewport.SetContent(m.String())
 			m.historyViewport.GotoBottom()
 			m.historyViewport.KeyMap = viewport.DefaultKeyMap()
@@ -74,8 +73,8 @@ func (m HistoryModel) Update(msg tea.Msg) (HistoryModel, tea.Cmd) {
 
 			m.ready = true
 		} else {
-			m.historyViewport.Width = msg.Width
-			m.historyViewport.Height = msg.Height - m.footerHeight
+			m.historyViewport.Width = msg.Width - m.Left - m.Right
+			m.historyViewport.Height = msg.Height - m.Top - m.Bottom
 		}
 	case AddHistoryMsg:
 		m.add(msg.Text)
